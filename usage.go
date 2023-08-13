@@ -84,6 +84,6 @@ func GetLastMonth() (string, string) {
 		lastYear = year - 1
 		lastMonth = time.December
 	}
-	return fmt.Sprintf("%v-%v-01", lastYear, lastMonth.String()),
-		fmt.Sprintf("%v-%v-01", year, month.String())
+	return fmt.Sprintf("%v-%02d-01", lastYear, lastMonth),
+		fmt.Sprintf("%v-%02d-01", year, month)
 }
