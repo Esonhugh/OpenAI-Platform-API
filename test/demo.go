@@ -3,40 +3,38 @@ package main
 import (
 	platform "github.com/esonhugh/openai-platform-api"
 	"github.com/sirupsen/logrus"
-	"go.uber.org/zap"
 	"log"
 )
 
 func main() {
-
 	logger := logrus.New()
 	logger.SetLevel(logrus.DebugLevel)
-	c := platform.NewUserPlatformClient("", platform.NewLoggerWarp(logger))
-
-	logger2, _ := zap.NewDevelopment()
-	c = platform.NewUserPlatformClient("", platform.NewLoggerWarp(logger2.Sugar()))
-
-	c = platform.NewUserPlatformClient("", nil)
+	c := platform.NewUserPlatformClient("")
 
 	// if you want accessToken based without login please use this with
 	// c.LoginWithAccessToken()
 	// instead of
-	c.LoginWithAuth0("username", "password")
+	// c.LoginWithAuth0("username", "password")
 
-	_, err := c.GetSecretKeys()
+	resp, err := c.GetSecretKeys()
 	if err != nil {
 		log.Println(err)
+		return
 	}
-	resp, err := c.CreateSecretKey("CreateKeyName_114514")
+	log.Println(resp)
+
+	resp1, err := c.CreateSecretKey("CreateKeyName_114514")
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
-	log.Println(resp.Key.Object, resp.Key.SensitiveID)
+	log.Println(resp1.Key.Object, resp1.Key.SensitiveID)
 
 	resp2, err := c.GetSecretKeys()
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	var key_delete platform.Key
 	for _, key := range resp2.Data {

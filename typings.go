@@ -15,9 +15,9 @@ type UserClient struct {
 }
 
 // NewUserPlatformClient called NewHttpClient with log.
-func NewUserPlatformClient(accessToken string, logger *LogMiddleware) *UserClient {
+func NewUserPlatformClient(accessToken string) *UserClient {
 	return &UserClient{
-		client:      NewHttpClient(logger),
+		client:      NewHttpClient(nil),
 		accessToken: accessToken,
 	}
 }
