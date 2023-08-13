@@ -92,7 +92,7 @@ func (u *UserClient) CreateSecretKey(name string) (CreateSecretKeyResponse, erro
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return CreateSecretKeyResponse{}, errors.Join(
-			errors.New("GetSecretKey Unmarshal error"),
+			errors.New("CreateSecretKey Unmarshal error"),
 			err)
 	}
 
@@ -105,7 +105,7 @@ type DeleteSecretKeyResponse struct {
 
 func (u *UserClient) DeleteSecretKey(key Key) (DeleteSecretKeyResponse, error) {
 	if u.SessionKey() == "" {
-		return DeleteSecretKeyResponse{}, errors.New("CreateSecretKey with no SessionKey is Defined")
+		return DeleteSecretKeyResponse{}, errors.New("DeleteSecretKey with no SessionKey is Defined")
 	}
 	form := ActionMap{
 		Action:      "delete",
@@ -127,7 +127,7 @@ func (u *UserClient) DeleteSecretKey(key Key) (DeleteSecretKeyResponse, error) {
 	resp, err := u.client.Do(req)
 	if err != nil {
 		return DeleteSecretKeyResponse{}, errors.Join(
-			errors.New("CreateSecretKeys error"),
+			errors.New("DeleteSecretKeys error"),
 			err,
 		)
 	}
@@ -136,7 +136,7 @@ func (u *UserClient) DeleteSecretKey(key Key) (DeleteSecretKeyResponse, error) {
 		var response_data []byte
 		_, err_read := resp.Body.Read(response_data)
 		return DeleteSecretKeyResponse{}, errors.Join(
-			errors.New(fmt.Sprintf("CreateSecretKeys found non 200 response, StatusCode: %v", resp.StatusCode)),
+			errors.New(fmt.Sprintf("DeleteSecretKeys found non 200 response, StatusCode: %v", resp.StatusCode)),
 			errors.New(string(response_data)),
 			err, err_read)
 	}
@@ -146,7 +146,7 @@ func (u *UserClient) DeleteSecretKey(key Key) (DeleteSecretKeyResponse, error) {
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		return DeleteSecretKeyResponse{}, errors.Join(
-			errors.New("GetSecretKey Unmarshal error"),
+			errors.New("DeleteSecretKey Unmarshal error"),
 			err)
 	}
 
