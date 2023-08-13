@@ -8,10 +8,10 @@ import (
 func main() {
 	c := platform.NewUserPlatformClient("")
 	// if you want accessToken based without login please use this with
-	c.CheckStatus()
+	c.LoginWithAccessToken()
 
 	// instead of
-	c.LoginAuth("username", "password")
+	c.LoginWithAuth0("username", "password")
 
 	_, err := c.GetSecretKeys()
 	if err != nil {

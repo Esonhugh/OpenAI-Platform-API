@@ -56,8 +56,8 @@ type CreateSecretKeyResponse struct {
 type ActionMap struct {
 	Action      string `json:"action"`
 	Name        string `json:"name,omitempty"`
-	CreateAt    int    `json:"create_at,omitempty"`
 	RedactedKey string `json:"redacted_key,omitempty"`
+	CreatedAt   int    `json:"created_at,omitempty"`
 }
 
 func (u *UserClient) CreateSecretKey(name string) (CreateSecretKeyResponse, error) {
@@ -74,6 +74,7 @@ func (u *UserClient) CreateSecretKey(name string) (CreateSecretKeyResponse, erro
 	req.Header.Set(AuthorizationHeader, "Bearer "+u.SessionKey())
 	req.Header.Set("User-Agent", UserAgent)
 	resp, err := u.client.Do(req)
+	defer resp.Body.Close()
 	if err != nil {
 		return CreateSecretKeyResponse{}, errors.Join(
 			errors.New("CreateSecretKeys error"),
@@ -108,14 +109,21 @@ func (u *UserClient) DeleteSecretKey(key Key) (DeleteSecretKeyResponse, error) {
 	}
 	form := ActionMap{
 		Action:      "delete",
-		CreateAt:    key.Created,
+		CreatedAt:   key.Created,
 		RedactedKey: key.SensitiveID,
 	}
-	bytedata, _ := json.Marshal(form)
-	req, err := http.NewRequest(http.MethodPost, PlatformApiUrlPrefix+"/dashboard/user/api_keys", strings.NewReader(string(bytedata)))
+	bytedata, err := json.Marshal(form)
+	if err != nil {
+		return DeleteSecretKeyResponse{}, errors.Join(errors.New("error in json marshal"), err)
+	}
+	str_request := string(bytedata)
+	req, err := http.NewRequest(http.MethodPost, PlatformApiUrlPrefix+"/dashboard/user/api_keys", strings.NewReader(str_request))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+u.SessionKey())
 	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("Origin", "https://platform.openai.com")
+	req.Header.Set("Referer", "https://platform.openai.com")
+	req.Header.Set("Accept", "*/*")
 	resp, err := u.client.Do(req)
 	if err != nil {
 		return DeleteSecretKeyResponse{}, errors.Join(
@@ -123,10 +131,14 @@ func (u *UserClient) DeleteSecretKey(key Key) (DeleteSecretKeyResponse, error) {
 			err,
 		)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
+		var response_data []byte
+		_, err_read := resp.Body.Read(response_data)
 		return DeleteSecretKeyResponse{}, errors.Join(
 			errors.New(fmt.Sprintf("CreateSecretKeys found non 200 response, StatusCode: %v", resp.StatusCode)),
-			err)
+			errors.New(string(response_data)),
+			err, err_read)
 	}
 	data, _ := io.ReadAll(resp.Body)
 

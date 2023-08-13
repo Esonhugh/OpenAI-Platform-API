@@ -7,17 +7,12 @@ import (
 	http "github.com/bogdanfinn/fhttp"
 )
 
-//goland:noinspection GoUnhandledErrorResult
-func (u *UserClient) LoginAuth(Username, Password string) error {
-	if u.AccessToken() != "" {
-		body, statusCode, err := u.DashboardLogin(u.AccessToken())
-		if err == nil && statusCode == http.StatusOK { // healthCheck Success and no login again.
-			var getHealthCheckResponse DashboardLoginResponse
-			json.Unmarshal([]byte(body), &getHealthCheckResponse)
-			u.sessionKey = getHealthCheckResponse.User.Session.SensitiveID
-			return nil
-		}
-	}
+func (u *UserClient) Logout() error {
+	_, err := u.client.Get(auth0LogoutUrl)
+	return err
+}
+
+func (u *UserClient) LoginWithAuth0(Username, Password string) error {
 	// hard refresh cookies
 	resp, _ := u.client.Get(auth0LogoutUrl)
 	defer resp.Body.Close()
@@ -89,9 +84,13 @@ func (u *UserClient) LoginAuth(Username, Password string) error {
 	return nil
 }
 
-func (u *UserClient) CheckStatus() (DashboardLoginResponse, error) {
+func (u *UserClient) LoginWithAccessToken() (DashboardLoginResponse, error) {
+	return u.DashboardOnBoarding()
+}
+
+func (u *UserClient) DashboardOnBoarding() (DashboardLoginResponse, error) {
 	if u.AccessToken() == "" {
-		return DashboardLoginResponse{}, errors.New("GetSessionToken but accessToken is empty, you need re-login")
+		return DashboardLoginResponse{}, errors.New("dashboard Onboarding but accessToken is empty, you need re-login")
 	}
 	data, statusCode, err := u.DashboardLogin(u.AccessToken())
 	if err != nil {

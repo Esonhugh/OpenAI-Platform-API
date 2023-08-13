@@ -32,6 +32,7 @@ func NewHttpClient() tls_client.HttpClient {
 	client, _ := tls_client.NewHttpClient(tls_client.NewNoopLogger(), []tls_client.HttpClientOption{
 		tls_client.WithCookieJar(tls_client.NewCookieJar()),
 		tls_client.WithClientProfile(tls_client.Okhttp4Android13),
+		tls_client.WithInsecureSkipVerify(), // for debug and proxies.
 	}...)
 
 	proxyUrl := os.Getenv("https_proxy")
