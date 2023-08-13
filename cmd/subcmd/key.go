@@ -15,6 +15,7 @@ var KeyCmd = &cobra.Command{
 	Use:   "key",
 	Short: "Key sub command for key management",
 	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Help()
 	},
 }
 

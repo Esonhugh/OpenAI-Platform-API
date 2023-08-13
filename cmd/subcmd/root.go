@@ -48,5 +48,6 @@ var RootCmd = &cobra.Command{
 		return
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Help()
 	},
 }

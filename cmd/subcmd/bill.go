@@ -68,22 +68,30 @@ var BillCmd = &cobra.Command{
 			}
 			eachP := bigestCost / 32
 
-			fmt.Println("------------------------ BILL ---------------------------")
+			fmt.Println("------------------------------------------------------")
+			fmt.Println("|    DATE    | COST |           Status               |")
+			fmt.Println("------------------------------------------------------")
 			for _, day := range days {
 				if day.Time == 0 {
 					continue
 				}
 				star := ""
-				for i := 0; i < int(day.Cost/eachP); i++ {
-					star += "*"
+				for i := 0; i < 32; i++ {
+					if i < int(day.Cost/eachP) {
+						star += "*"
+					} else {
+						star += " "
+					}
 				}
-				fmt.Printf("%v \t |%v| --- %.2f\n",
+				fmt.Printf("| %v | %.2f |%v|\n", // 1 + 10 + 1 + 4 + 1 + 32 + 1
 					time.Unix(int64(day.Time), 0).Format("2006-01-02"),
-					star,
 					day.Cost/100,
+					star,
 				)
 			}
-			fmt.Println("---------------------------------------------------------")
+			fmt.Println("------------------------------------------------------")
+			fmt.Printf("       TOTAL: %.2f\n", resp.TotalUsage/100)
+			fmt.Println("------------------------------------------------------")
 		}
 	},
 }
