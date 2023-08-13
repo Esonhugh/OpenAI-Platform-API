@@ -6,9 +6,16 @@ import (
 	"github.com/esonhugh/openai-platform-api/cmd/client"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"math"
 	"os"
 	"time"
 )
+
+var ui bool
+
+func init() {
+	BillCmd.Flags().BoolVarP(&ui, "ui", "u", false, "output with UI with every day data")
+}
 
 var BillCmd = &cobra.Command{
 	Use:   "usage",
@@ -39,5 +46,44 @@ var BillCmd = &cobra.Command{
 		}
 		log.Infof("From %v To %v", from, to)
 		log.Infof("Total count: $%v", resp.TotalUsage/100)
+		if ui {
+			var days = make([]struct {
+				Cost float64
+				Time float64
+			}, 1)
+			bigestCost := 0.0
+			for _, dc := range resp.DailyCosts {
+				fullCost := 0.0
+				for _, li := range dc.LineItems {
+					fullCost += li.Cost
+				}
+				bigestCost = math.Max(bigestCost, fullCost)
+				days = append(days, struct {
+					Cost float64
+					Time float64
+				}{
+					Cost: fullCost,
+					Time: dc.Timestamp,
+				})
+			}
+			eachP := bigestCost / 32
+
+			fmt.Println("------------------------ BILL ---------------------------")
+			for _, day := range days {
+				if day.Time == 0 {
+					continue
+				}
+				star := ""
+				for i := 0; i < int(day.Cost/eachP); i++ {
+					star += "*"
+				}
+				fmt.Printf("%v \t |%v| --- %.2f\n",
+					time.Unix(int64(day.Time), 0).Format("2006-01-02"),
+					star,
+					day.Cost/100,
+				)
+			}
+			fmt.Println("---------------------------------------------------------")
+		}
 	},
 }
