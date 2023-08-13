@@ -54,6 +54,7 @@ func (u *UserClient) usageWithCustomToken(token, StartDate, EndDate string) (Usa
 			err,
 		)
 	}
+	u.lastResponse = resp
 	if resp.StatusCode != http.StatusOK {
 		return UsageResponse{}, errors.Join(
 			errors.New(fmt.Sprintf("Usage found non 200 response, StatusCode: %v", resp.StatusCode)),

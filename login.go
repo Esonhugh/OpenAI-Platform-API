@@ -16,6 +16,7 @@ func (u *UserClient) LoginWithAuth0(Username, Password string) error {
 	// hard refresh cookies
 	resp, _ := u.client.Get(auth0LogoutUrl)
 	defer resp.Body.Close()
+	u.lastResponse = resp
 
 	// get authorized url
 	authorizedUrl, statusCode, err := u.GetAuthorizedUrl("")

@@ -27,6 +27,7 @@ func (u *UserClient) GetAuthorizedUrl(csrfToken string) (string, int, error) {
 		return "", http.StatusInternalServerError, err
 	}
 
+	u.lastResponse = resp
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return "", resp.StatusCode, errors.New(GetAuthorizedUrlErrorMessage)
@@ -58,6 +59,7 @@ func (u *UserClient) CheckUsername(state string, username string) (int, error) {
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+	u.lastResponse = resp
 
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -82,6 +84,7 @@ func (u *UserClient) CheckPassword(state string, username string, password strin
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
+	u.lastResponse = resp
 
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -106,6 +109,7 @@ func (u *UserClient) GetAccessToken(code string) (string, int, error) {
 	if err != nil {
 		return "", http.StatusInternalServerError, err
 	}
+	u.lastResponse = resp
 
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
@@ -133,6 +137,7 @@ func (u *UserClient) DashboardLogin(AccessToken string) (string, int, error) {
 		return "", http.StatusInternalServerError, err
 	}
 
+	u.lastResponse = resp
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		return "", resp.StatusCode, errors.New(GetAccessTokenErrorMessage)

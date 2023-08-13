@@ -2,14 +2,24 @@ package main
 
 import (
 	platform "github.com/esonhugh/openai-platform-api"
+	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"log"
 )
 
 func main() {
-	c := platform.NewUserPlatformClient("")
-	// if you want accessToken based without login please use this with
-	c.LoginWithAccessToken()
 
+	logger := logrus.New()
+	logger.SetLevel(logrus.DebugLevel)
+	c := platform.NewUserPlatformClient("", platform.NewLoggerWarp(logger))
+
+	logger2, _ := zap.NewDevelopment()
+	c = platform.NewUserPlatformClient("", platform.NewLoggerWarp(logger2.Sugar()))
+
+	c = platform.NewUserPlatformClient("", nil)
+
+	// if you want accessToken based without login please use this with
+	// c.LoginWithAccessToken()
 	// instead of
 	c.LoginWithAuth0("username", "password")
 

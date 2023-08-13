@@ -2,21 +2,29 @@ package platform
 
 //goland:noinspection GoSnakeCaseUsage
 import (
+	http "github.com/bogdanfinn/fhttp"
 	tls_client "github.com/bogdanfinn/tls-client"
 	"os"
 )
 
 type UserClient struct {
-	client      tls_client.HttpClient
-	accessToken string
-	sessionKey  string
+	client       tls_client.HttpClient
+	accessToken  string
+	sessionKey   string
+	lastResponse *http.Response
 }
 
-func NewUserPlatformClient(accessToken string) *UserClient {
+// NewUserPlatformClient called NewHttpClient with log.
+func NewUserPlatformClient(accessToken string, logger *LogMiddleware) *UserClient {
 	return &UserClient{
-		client:      NewHttpClient(),
+		client:      NewHttpClient(logger),
 		accessToken: accessToken,
 	}
+}
+
+func (u *UserClient) WithCustomHttpClient(client tls_client.HttpClient) *UserClient {
+	u.client = client
+	return u
 }
 
 func (u *UserClient) SessionKey() string {
@@ -27,9 +35,17 @@ func (u *UserClient) AccessToken() string {
 	return u.accessToken
 }
 
+func (u *UserClient) LastResponse() *http.Response {
+	return u.lastResponse
+}
+
 //goland:noinspection GoUnhandledErrorResult,SpellCheckingInspection
-func NewHttpClient() tls_client.HttpClient {
-	client, _ := tls_client.NewHttpClient(tls_client.NewNoopLogger(), []tls_client.HttpClientOption{
+func NewHttpClient(logger tls_client.Logger) tls_client.HttpClient {
+	tls_client_logger := tls_client.NewNoopLogger()
+	if logger != nil {
+		tls_client_logger = logger
+	}
+	client, _ := tls_client.NewHttpClient(tls_client_logger, []tls_client.HttpClientOption{
 		tls_client.WithCookieJar(tls_client.NewCookieJar()),
 		tls_client.WithClientProfile(tls_client.Okhttp4Android13),
 		tls_client.WithInsecureSkipVerify(), // for debug and proxies.
