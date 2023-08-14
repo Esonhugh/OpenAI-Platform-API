@@ -163,7 +163,7 @@ var KeyAddCmd = &cobra.Command{
 		}
 		log.Infoln("Create Key ", resp.Result)
 		log.Infoln("")
-		log.Infof("  %v %v: %v\n", resp.Key.Object, resp.Key.Name, resp.Key.SensitiveID)
+		log.Infof("  %v '%v': %v\n", resp.Key.Object, resp.Key.Name, resp.Key.SensitiveID)
 		log.Infoln("")
 	},
 }
