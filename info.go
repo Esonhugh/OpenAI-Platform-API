@@ -164,3 +164,68 @@ func (u *UserClient) PaymentHistory() (PaymentHistoryResponse, error) {
 func (u *UserClient) GetInvoices() (PaymentHistoryResponse, error) {
 	return u.PaymentHistory()
 }
+
+type PaymentMethodResponse struct {
+	Object string `json:"object"`
+	Data   []struct {
+		Object string `json:"object"`
+		ID     string `json:"id"`
+		Type   string `json:"type"`
+		Card   struct {
+			Brand    string `json:"brand"`
+			Last4    string `json:"last4"`
+			ExpMonth int    `json:"exp_month"`
+			ExpYear  int    `json:"exp_year"`
+			Country  string `json:"country"`
+		} `json:"card"`
+		IsDefault bool `json:"is_default"`
+	} `json:"data"`
+}
+
+func (u *UserClient) PaymentMethod() (PaymentMethodResponse, error) {
+	if u.SessionKey() == "" {
+		return PaymentMethodResponse{}, errors.New("dashboard payment method but accessToken is empty, you need re-login")
+	}
+	req, err := http.NewRequest(http.MethodGet, PlatformApiUrlPrefix+"/dashboard/billing/payment_methods", nil)
+	req.Header.Set("Authorization", "Bearer "+u.SessionKey())
+	req.Header.Set("User-Agent", UserAgent)
+	resp, err := u.client.Do(req)
+	if err != nil {
+		return PaymentMethodResponse{}, errors.Join(
+			errors.New("GetPaymentMethod Request Error"), err)
+	}
+	u.lastResponse = resp
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return PaymentMethodResponse{}, err
+	}
+
+	// data, statusCode, err := u.RawDashboardLogin(u.AccessToken())
+	statusCode := resp.StatusCode
+	if err != nil {
+		return PaymentMethodResponse{}, errors.Join(
+			errors.New(
+				fmt.Sprintf("Try Login dashboard, got HTTP Status: %v", statusCode),
+			),
+			err,
+		)
+	}
+	if statusCode != http.StatusOK {
+		return PaymentMethodResponse{}, errors.Join(
+			errors.New(fmt.Sprintf("Try GetPaymentMethod.got non-200 HTTP Status: %v", statusCode)),
+			err,
+		)
+	}
+
+	var paymentMethodResponse PaymentMethodResponse
+	err = json.Unmarshal([]byte(data), &paymentMethodResponse)
+	if err != nil {
+		return PaymentMethodResponse{}, errors.Join(
+			errors.New("GetPaymentMethod error, bad json data, data: "+string(data)),
+			err)
+	}
+
+	return paymentMethodResponse, nil
+}
