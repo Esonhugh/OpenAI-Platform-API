@@ -19,7 +19,7 @@ func (u *UserClient) LoginWithAuth0(Username, Password string) error {
 	u.lastResponse = resp
 
 	// get authorized url
-	authorizedUrl, statusCode, err := u.GetAuthorizedUrl("")
+	authorizedUrl, statusCode, err := u.RawGetAuthorizedUrl("")
 	if err != nil {
 		return errors.Join(
 			errors.New(fmt.Sprintf("HTTP url: %v got HTTP Status: %v", authorizedUrl, statusCode)),
@@ -28,31 +28,31 @@ func (u *UserClient) LoginWithAuth0(Username, Password string) error {
 	}
 
 	// get state
-	state, _, _ := u.GetState(authorizedUrl)
+	state, _, _ := u.RawGetStateByAuthorizedUrl(authorizedUrl)
 
 	// check username
-	statusCode, err = u.CheckUsername(state, Username)
+	statusCode, err = u.RawCheckUsername(state, Username)
 	if err != nil {
 		return errors.Join(
-			errors.New(fmt.Sprintf("CheckUsername, got HTTP Status: %v", statusCode)),
+			errors.New(fmt.Sprintf("RawCheckUsername, got HTTP Status: %v", statusCode)),
 			err,
 		)
 	}
 
 	// check password
-	code, statusCode, err := u.CheckPassword(state, Username, Password)
+	code, statusCode, err := u.RawCheckPassword(state, Username, Password)
 	if err != nil {
 		return errors.Join(
-			errors.New(fmt.Sprintf("CheckPassword, got HTTP Status: %v", statusCode)),
+			errors.New(fmt.Sprintf("RawCheckPassword, got HTTP Status: %v", statusCode)),
 			err,
 		)
 	}
 
 	// get access token
-	accessToken, statusCode, err := u.GetAccessToken(code)
+	accessToken, statusCode, err := u.RawGetAccessToken(code)
 	if err != nil {
 		return errors.Join(
-			errors.New(fmt.Sprintf("GetAccessToken, got HTTP Status: %v", statusCode)),
+			errors.New(fmt.Sprintf("RawGetAccessToken, got HTTP Status: %v", statusCode)),
 			err,
 		)
 	}
@@ -60,7 +60,7 @@ func (u *UserClient) LoginWithAuth0(Username, Password string) error {
 	// get session key
 	var getAccessTokenResponse GetAccessTokenResponse
 	json.Unmarshal([]byte(accessToken), &getAccessTokenResponse)
-	data, statusCode, err := u.DashboardLogin(getAccessTokenResponse.AccessToken)
+	data, statusCode, err := u.RawDashboardLogin(getAccessTokenResponse.AccessToken)
 	if err != nil {
 		return errors.Join(
 			errors.New(
@@ -93,7 +93,7 @@ func (u *UserClient) DashboardOnBoarding() (DashboardLoginResponse, error) {
 	if u.AccessToken() == "" {
 		return DashboardLoginResponse{}, errors.New("dashboard Onboarding but accessToken is empty, you need re-login")
 	}
-	data, statusCode, err := u.DashboardLogin(u.AccessToken())
+	data, statusCode, err := u.RawDashboardLogin(u.AccessToken())
 	if err != nil {
 		return DashboardLoginResponse{}, errors.Join(
 			errors.New(

@@ -11,7 +11,7 @@ import (
 )
 
 //goland:noinspection GoUnhandledErrorResult,GoErrorStringFormat,GoUnusedParameter
-func (u *UserClient) GetAuthorizedUrl(csrfToken string) (string, int, error) {
+func (u *UserClient) RawGetAuthorizedUrl(csrfToken string) (string, int, error) {
 	urlParams := url.Values{
 		"client_id":     {platformAuthClientID},
 		"audience":      {platformAuthAudience},
@@ -36,13 +36,13 @@ func (u *UserClient) GetAuthorizedUrl(csrfToken string) (string, int, error) {
 	return resp.Request.URL.String(), http.StatusOK, nil
 }
 
-func (u *UserClient) GetState(authorizedUrl string) (string, int, error) {
+func (u *UserClient) RawGetStateByAuthorizedUrl(authorizedUrl string) (string, int, error) {
 	split := strings.Split(authorizedUrl, "=")
 	return split[1], http.StatusOK, nil
 }
 
 //goland:noinspection GoUnhandledErrorResult,GoErrorStringFormat
-func (u *UserClient) CheckUsername(state string, username string) (int, error) {
+func (u *UserClient) RawCheckUsername(state string, username string) (int, error) {
 	formParams := url.Values{
 		"state":                       {state},
 		"username":                    {username},
@@ -70,7 +70,7 @@ func (u *UserClient) CheckUsername(state string, username string) (int, error) {
 }
 
 //goland:noinspection GoUnhandledErrorResult,GoErrorStringFormat
-func (u *UserClient) CheckPassword(state string, username string, password string) (string, int, error) {
+func (u *UserClient) RawCheckPassword(state string, username string, password string) (string, int, error) {
 	formParams := url.Values{
 		"state":    {state},
 		"username": {username},
@@ -95,7 +95,7 @@ func (u *UserClient) CheckPassword(state string, username string, password strin
 }
 
 //goland:noinspection GoUnhandledErrorResult,GoErrorStringFormat
-func (u *UserClient) GetAccessToken(code string) (string, int, error) {
+func (u *UserClient) RawGetAccessToken(code string) (string, int, error) {
 	jsonBytes, _ := json.Marshal(GetAccessTokenRequest{
 		ClientID:    platformAuthClientID,
 		Code:        code,
@@ -127,7 +127,7 @@ type DashboardLoginResponse struct {
 }
 
 //goland:noinspection GoUnhandledErrorResult,GoErrorStringFormat
-func (u *UserClient) DashboardLogin(AccessToken string) (string, int, error) {
+func (u *UserClient) RawDashboardLogin(AccessToken string) (string, int, error) {
 	req, err := http.NewRequest(http.MethodPost, dashboardLoginUrl, strings.NewReader("{}"))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+AccessToken)
