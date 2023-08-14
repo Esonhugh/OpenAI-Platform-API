@@ -13,7 +13,8 @@ type ConfigData struct {
 		Username string `json:"username" yaml:"username"`
 		Password string `json:"password" yaml:"password"`
 	} `json:"openai" yaml:"openai"`
-	AccessToken string `json:"access_token" yaml:"access_token"`
+	AccessToken     string `json:"access_token" yaml:"access_token"`
+	SecretKeyPrefix string `json:"secret_key_prefix" yaml:"secret_key_prefix"`
 }
 
 type GlobalConfig struct {
@@ -41,5 +42,6 @@ func Init() {
 		os.Exit(-2)
 	}
 	C.Config.AccessToken = C.GetString("access_token")
+	C.Config.SecretKeyPrefix = C.GetString("secret_key_prefix")
 	log.Infoln("Got Config successfully in $HOME/.config/openai-cli.yaml")
 }

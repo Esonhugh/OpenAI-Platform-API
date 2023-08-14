@@ -47,10 +47,10 @@ var BillCmd = &cobra.Command{
 		log.Infof("From %v To %v", from, to)
 		log.Infof("Total count: $%v", resp.TotalUsage/100)
 		if ui {
-			var days = make([]struct {
+			var days []struct {
 				Cost float64
 				Time float64
-			}, 1)
+			}
 			bigestCost := 0.0
 			for _, dc := range resp.DailyCosts {
 				fullCost := 0.0

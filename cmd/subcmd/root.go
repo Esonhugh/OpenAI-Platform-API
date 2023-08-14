@@ -10,7 +10,7 @@ import (
 
 func init() {
 	RootCmd.AddCommand(BillCmd, KeyCmd)
-	KeyCmd.AddCommand(KeyListCmd, KeyTempCmd, KeyDelCmd)
+	KeyCmd.AddCommand(KeyListCmd, KeyTempCmd, KeyDelCmd, KeyAddCmd)
 }
 
 var RootCmd = &cobra.Command{

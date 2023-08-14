@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/esonhugh/openai-platform-api/cmd/client"
+	"github.com/esonhugh/openai-platform-api/cmd/config"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
@@ -12,8 +13,9 @@ import (
 )
 
 var KeyCmd = &cobra.Command{
-	Use:   "key",
-	Short: "Key sub command for key management",
+	Use:     "key",
+	Aliases: []string{"k"},
+	Short:   "Key sub command for key management",
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
@@ -108,6 +110,9 @@ var KeyTempCmd = &cobra.Command{
 			os.Exit(-1)
 		}
 		name := "temp"
+		if key := config.C.Config.SecretKeyPrefix; key != "" {
+			name = key
+		}
 		if len(args) > 1 {
 			name = args[0]
 		}
@@ -131,5 +136,34 @@ var KeyTempCmd = &cobra.Command{
 			os.Exit(-3)
 		}
 		log.Infoln("Delete Key ", respDelete.Result)
+	},
+}
+
+var KeyAddCmd = &cobra.Command{
+	Use:     "create",
+	Aliases: []string{"a", "add"},
+	Short:   "create a key, not delete",
+	Run: func(cmd *cobra.Command, args []string) {
+		if client.Client == nil {
+			log.Errorln("No available client")
+			os.Exit(-1)
+		}
+		name := "temp"
+		if key := config.C.Config.SecretKeyPrefix; key != "" {
+			name = key
+		}
+		if len(args) > 1 {
+			name = args[0]
+		}
+		resp, err := client.Client.CreateSecretKey(name)
+		if err != nil {
+			log.Errorln("Get Secret Keys hits error", err)
+			log.Debug(client.Client.LastResponse())
+			os.Exit(-2)
+		}
+		log.Infoln("Create Key ", resp.Result)
+		log.Infoln("")
+		log.Infof("  %v %v: %v\n", resp.Key.Object, resp.Key.Name, resp.Key.SensitiveID)
+		log.Infoln("")
 	},
 }
