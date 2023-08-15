@@ -32,11 +32,11 @@ var BillCmd = &cobra.Command{
 			from = args[0]
 			to = args[1]
 		} else if len(args) == 1 {
-			now := time.Now()
+			now := time.Now().AddDate(0, 0, 1)
 			from = args[0]
 			to = fmt.Sprintf("%v-%02d-%v", now.Year(), now.Month(), now.Day())
 		} else {
-			from, to = platform.GetLastMonth()
+			from, to = platform.GetCurrentMonth()
 		}
 		resp, err = client.Client.UsageWithSessionToken(from, to)
 		if err != nil {

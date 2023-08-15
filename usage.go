@@ -87,3 +87,9 @@ func GetLastMonth() (string, string) {
 	return fmt.Sprintf("%v-%02d-01", lastYear, lastMonth),
 		fmt.Sprintf("%v-%02d-01", year, month)
 }
+
+func GetCurrentMonth() (string, string) {
+	End := time.Now().AddDate(0, 0, 1)
+	return fmt.Sprintf("%v-%02d-01", End.Year(), End.Month()),
+		fmt.Sprintf("%v-%02d-%v", End.Year(), End.Month(), End.Day())
+}
