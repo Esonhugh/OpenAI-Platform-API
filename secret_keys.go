@@ -74,13 +74,14 @@ func (u *UserClient) CreateSecretKey(name string) (CreateSecretKeyResponse, erro
 	req.Header.Set(AuthorizationHeader, "Bearer "+u.SessionKey())
 	req.Header.Set("User-Agent", UserAgent)
 	resp, err := u.client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
 		return CreateSecretKeyResponse{}, errors.Join(
 			errors.New("CreateSecretKeys error"),
 			err,
 		)
 	}
+	defer resp.Body.Close()
+	u.lastResponse = resp
 	if resp.StatusCode != http.StatusOK {
 		return CreateSecretKeyResponse{}, errors.Join(
 			errors.New(fmt.Sprintf("CreateSecretKeys found non 200 response, StatusCode: %v", resp.StatusCode)),

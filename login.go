@@ -15,7 +15,7 @@ func (u *UserClient) Logout() error {
 func (u *UserClient) LoginWithAuth0(Username, Password string) error {
 	// hard refresh cookies
 	resp, _ := u.client.Get(auth0LogoutUrl)
-	defer resp.Body.Close()
+	//defer resp.Body.Close()
 	u.lastResponse = resp
 
 	// get authorized url
